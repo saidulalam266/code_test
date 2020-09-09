@@ -87,9 +87,9 @@ class ProductController extends Controller
             }
             $product->variants()->attach($arr);
             foreach ($request->product_variant_prices as $variant_price_key => $variant_price) {
-                $product_variant_one='';
-                $product_variant_two='';
-                $product_variant_three=''; 
+                $product_variant_one=NULL;
+                $product_variant_two=NULL;
+                $product_variant_three=NULL; 
                 foreach ($product->product_variants as $key => $product_variant) {
 
                     foreach (explode('/', $variant_price['title']) as $key => $value) {
@@ -98,15 +98,19 @@ class ProductController extends Controller
                             switch ($key) {
                                 case '0':
                                     $product_variant_one=$product_variant->id;
+                                    break;
                                 case '1':
                                     $product_variant_two=$product_variant->id;
+                                    break;
                                 case '2':
                                     $product_variant_three=$product_variant->id;
+                                    break;
                             }
                         }
                     }
                     
                 }
+
                 $pvp[]=[
                         'product_variant_one'=>$product_variant_one,
                         'product_variant_two'=>$product_variant_two,
@@ -114,7 +118,9 @@ class ProductController extends Controller
                         'price'=>$variant_price['price'],
                         'stock'=>$variant_price['stock'],
                     ];
+                //dd($pvp);
             }
+            //dd($pvp);
             if (isset($pvp)) {
                 $product->product_variant_prices()->createMany($pvp);
             }
@@ -165,8 +171,21 @@ class ProductController extends Controller
         }
         $product_variant_prices=[];
         foreach ($product->product_variant_prices as $key => $value) {
+            $product_variant_ones=$value->product_variant_ones->variant;
+            $product_variant_ones = '';
+            $product_variant_twos = '';
+            $product_variant_threes = '';
+            if ($value->product_variant_ones) {
+                $product_variant_ones = $value->product_variant_ones->variant;
+            }
+            if ($value->product_variant_twos) {
+                $product_variant_twos = $value->product_variant_twos->variant;
+            }
+            if ($value->product_variant_threes) {
+                $product_variant_threes = $value->product_variant_threes->variant;
+            }
             $product_variant_prices[]=(object)[
-                    'title' => $value->product_variant_ones->variant.'/'.$value->product_variant_twos->variant.'/'.$value->product_variant_threes->variant,
+                    'title' => $product_variant_ones.'/'.$product_variant_twos.'/'.$product_variant_threes,
                     'price' => $value->price,
                     'stock' => $value->stock
             ];
@@ -206,9 +225,9 @@ class ProductController extends Controller
             $product->variants()->detach();
             $product->variants()->attach($arr);
             foreach ($request->product_variant_prices as $variant_price_key => $variant_price) {
-                $product_variant_one='';
-                $product_variant_two='';
-                $product_variant_three=''; 
+                $product_variant_one=NULL;
+                $product_variant_two=NULL;
+                $product_variant_three=NULL; 
                 foreach ($product->product_variants as $key => $product_variant) {
 
                     foreach (explode('/', $variant_price['title']) as $key => $value) {
@@ -217,10 +236,13 @@ class ProductController extends Controller
                             switch ($key) {
                                 case '0':
                                     $product_variant_one=$product_variant->id;
+                                    break;
                                 case '1':
                                     $product_variant_two=$product_variant->id;
+                                    break;
                                 case '2':
                                     $product_variant_three=$product_variant->id;
+                                    break;
                             }
                         }
                     }
@@ -255,6 +277,7 @@ class ProductController extends Controller
     {
         //
     }
+    
     public function image_upload(Request $request)
     {
         if ($request->file) {
