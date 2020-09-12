@@ -18,34 +18,7 @@ class ProductController extends Controller
      */
     public function index()
     {
-        //dd();
-        $products   = Product::query();
-        if(request('title'))
-        {
-            $products->where('title', 'LIKE', '%'. request('title') .'%');
-        }
-        if(request('variant'))
-        {
-            $variant = request('variant');
-            $products->whereHas('product_variants', function ($query) use($variant) {
-                       $query->where('variant', $variant);
-                 });
-        }
-        if(request('price_from') && request('price_to'))
-        {
-            $from = request('price_from');
-            $to = request('price_to');
-            $products->whereHas('product_variant_prices', function ($query) use($from,$to) {
-                       $query->whereBetween('price', [$from,$to]);
-                 });
-        }
-        if(request('date'))
-        {
-            $products->where('created_at', 'LIKE', request('date') .'%');
-        }
-        $products=$products->paginate(5);
-        $variants=Variant::all();
-        //dd($products);
+        $products = Product::allProduct();
         return view('products.index')->with(['products'=>$products,'variants'=>$variants]);
     }
 

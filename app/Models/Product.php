@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Pipeline\Pipeline;
 use Illuminate\Database\Eloquent\Model;
 
 class Product extends Model
@@ -11,6 +12,21 @@ class Product extends Model
     ];
     
 
+    public static function allProduct()
+    {
+       $products = app(Pipeline::class)
+                ->send(\App\Models\Product::query())
+                ->through([
+                    \App\QueryFilters\Title::class,
+                    \App\QueryFilters\Variant::class,
+                    \App\QueryFilters\PriceFrom::class,
+                    \App\QueryFilters\PriceTo::class,
+                    \App\QueryFilters\Date::class,
+                ])
+                ->thenReturn()
+                ->paginate(5);
+        return $products;
+    }
 
     public function product_images()
     {
